@@ -1,0 +1,25 @@
+html,
+body {
+    text-align: center;
+    background-color: rgb(238, 234, 234);
+}
+
+button {
+    background-color: rgb(119, 191, 233);
+    color: aliceblue;
+    border-radius: 20%;
+}
+
+#toDoName {
+    border-color: rgb(119, 191, 233);
+}
+
+.flex-container {
+    display: -webkit-inline-flex;
+    display: inline-flex;
+    flex-direction: column;
+}
+
+h1 {
+    color: rgb(119, 191, 233);
+}
