@@ -15,6 +15,7 @@
         <!--  add input and button  -->
         <div>
             <input type="text" id="toDoName" placeholder="What you want to do?">
+            <input type="checkbox" id="stat">
             <button id="addtoDo">Add</button>
             <hr>
             <button id="getByName">↓</button> |
@@ -23,21 +24,12 @@
         <div id="todo-list" class="flex-container">
 
         </div>
+        <button id="delete">Delete</button>
     </div>
     <script src="./jquery-3.4.1.js"></script>
     <script src="./script.js"></script>
     <script>
-        // document.getElementById('stat').onclick = function() {
-        //     if (document.getElementById('stat').checked) {
-        //         localStorage.setItem('stat', "true");
-        //     } else {
-        //         localStorage.setItem('stat', "false");
-        //     }
-        // }
-        // if (localStorage.getItem('stat') == "true") {
-        //     document.getElementById("stat").setAttribute('checked', 'checked');
-        // }
-    </script>
+
 </body>
 
 </html>

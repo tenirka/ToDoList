@@ -6,13 +6,16 @@ document.getElementById("todo-list").innerHTML = todos;
 
 $(document).ready(function() {
     initTodos();
-    createTodo(taskText);
+    createTodo();
+    
 });
 
 /* create new to do after clicking the button "Add" */
 
 $('#addtoDo').click(function() {
     let taskText = $('#toDoName').val();
+
+       
 
     /**
      * 1) Create todo object 
@@ -25,15 +28,9 @@ $('#addtoDo').click(function() {
     todos.push(todo);
     saveTodosToStorage(todos);
     drawTodo(todo);
+    
 
     /* add date and time near the task */
-
-    const currentdate = new Date($.now());
-    const datetime = currentdate.getDate() + "/" +
-        (currentdate.getMonth() + 1) + "/" +
-        currentdate.getFullYear() + "  " +
-        currentdate.getHours() + ":" +
-        currentdate.getMinutes();
 
 });
 
@@ -44,14 +41,16 @@ $('#toDoName').keyup(function(event) {
     };
 });
 
-
 function drawTodo(todo) {
-    //todo.taskText, todo.datetime 
+    console.log('------------------------------------');
+    console.log(todo);
+    console.log('------------------------------------');
+    const {taskText = taskText, datetime= '', isActive} = todo;
     $('#todo-list').append(
         `<li>
                 <input type = "checkbox" id="stat">
                 ${taskText} ${datetime}
-        </li>`
+        </li>`   
     )
 }
 
@@ -61,6 +60,14 @@ function drawTodos(todos) {
     });
 
 }
+
+
+const currentdate = new Date($.now());
+const datetime = currentdate.getDate() + "/" +
+    (currentdate.getMonth() + 1) + "/" +
+    currentdate.getFullYear() + "  " +
+    currentdate.getHours() + ":" +
+    currentdate.getMinutes();
 
 
 /**
