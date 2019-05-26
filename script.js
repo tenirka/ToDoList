@@ -5,7 +5,7 @@ document.getElementById("todo-list").innerHTML = todos;
 
 
 
-$(document).ready(function() {
+$(document).ready(function () {
     initTodos();
     createTodo();
 
@@ -15,7 +15,7 @@ $(document).ready(function() {
 
 /* create new to do after clicking the button "Add" */
 
-$('#addtoDo').click(function() {
+$('#addtoDo').click(function () {
     let taskText = $('#toDoName').val();
 
     /**
@@ -35,7 +35,7 @@ $('#addtoDo').click(function() {
 
 /*  add click on enter button  */
 
-$('#toDoName').keyup(function(event) {
+$('#toDoName').keyup(function (event) {
     if (event.keyCode == 13) {
         $('#addtoDo').click();
     };
@@ -44,30 +44,35 @@ $('#toDoName').keyup(function(event) {
 /* draw todo in LS */
 
 function drawTodo(todo) {
-    console.log('------------------------------------');
-    console.log(todos);
-    console.log('------------------------------------');
-
     $('#todo-list').append(
         `<li attr-id=${todo.id}>
                 <input type = "checkbox" class="checkBox">
-                ${todo.taskText} ${formatDate(todo.date)} 
-                <button class="delete">x</button>
+                ${todo.taskText} ${formatDate(todo.datetime)} 
+                <button class = "delete"
+                value = ${todo.id}> x </button>
         </li>`
     )
 }
 
 /* add click on delete button */
 
-$('#todo-list').on('click', '.delete', function() {
+$('#todo-list').on('click', '.delete', function (event) {
+    removeItem(event.target.value);
     $(this).closest('li').remove();
 });
 
-$(document).on('click', '.all-del', function() {
-    $('#todo-list').closest('li').remove();
-
+$(document).on('click', '.all-del', function () {
+    removeAllItems();
+    $('#todo-list').empty();
 });
 
+// $('#todo-list :checkbox').change(function () {
+//     if (this.checked) {
+
+//     } else {
+
+//     }
+// });
 
 /**
  * 1) Get todos from LS
@@ -111,7 +116,9 @@ function saveTodosToStorage(todos) {
 
 function getTodosFromStorage() {
     const todos = JSON.parse(localStorage.getItem(TODOS_KEY));
-    if (!todos) { return []; }
+    if (!todos) {
+        return [];
+    }
     return todos;
 }
 
@@ -120,33 +127,26 @@ function getTodosFromStorage() {
 
 function formatDate(_date) {
     const date = new Date(_date)
+    console.log('------------------------------------');
+    console.log(_date);
+    console.log('------------------------------------');
     return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}/${date.getHours()}:${date.getMinutes()};`
 }
 
 /* delete todo item from LS */
 
-
-
-
-function removeItem() {
-    const todos = JSON.parse(localStorage.getItem(TODOS_KEY));
-
-    todos.splice(index, 1);
-    localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
-
+function removeItem(id) {
+    const oldTodos = JSON.parse(localStorage.getItem(TODOS_KEY));
+    const newTodos = oldTodos.filter(el => {
+        return el.id !== +id
+    })
+    localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
 }
 
-const found = todos.find(function(removeItem) {
-    if (todos.indexOf) {
-        return todos.indexOf(value);
-    }
-
-    for (var i = 0; i < todos.length; i++) {
-        if (todos[i] === value) return i;
-    }
-
-    return -1;
-});
+function removeAllItems() {
+    localStorage.setItem(TODOS_KEY, JSON.stringify([]));
+    return
+}
 
 
 /* checkbox status */
@@ -175,4 +175,4 @@ const found = todos.find(function(removeItem) {
 
 //     document.querySelector('#checkBox').checked = localStorage.checked
 
-// });
+// })
