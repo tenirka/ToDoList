@@ -3,9 +3,9 @@ const TODOS_KEY = 'todos';
 let todos = [];
 document.getElementById("todo-list").innerHTML = todos;
 
+const input = document.getElementById("toDoName");
 
-
-$(document).ready(function () {
+$(document).ready(function() {
     initTodos();
     createTodo();
 
@@ -15,7 +15,7 @@ $(document).ready(function () {
 
 /* create new to do after clicking the button "Add" */
 
-$('#addtoDo').click(function () {
+$('#addtoDo').click(function() {
     let taskText = $('#toDoName').val();
 
     /**
@@ -29,50 +29,55 @@ $('#addtoDo').click(function () {
     todos.push(todo);
     saveTodosToStorage(todos);
     drawTodo(todo);
+    input.value = "";
 
 });
 
 
 /*  add click on enter button  */
 
-$('#toDoName').keyup(function (event) {
+$('#toDoName').keyup(function(event) {
     if (event.keyCode == 13) {
         $('#addtoDo').click();
     };
 });
 
+
+
+
+/* add click on delete button */
+
+$('#todo-list').on('click', '.delete', function(event) {
+    removeItem(event.target.value);
+    $(this).closest('li').remove();
+});
+
+$(document).on('click', '.all-del', function() {
+    removeAllItems();
+    $('#todo-list').empty();
+});
+
+
+/* add click on checkbox */
+
+$('#todo-list').on('click', '.checkBox', onClickCheckBox)
+
+$('.check-all').on('click', checkedAll)
+
+
 /* draw todo in LS */
 
 function drawTodo(todo) {
+    console.log(todo.isActive)
     $('#todo-list').append(
         `<li attr-id=${todo.id}>
-                <input type = "checkbox" class="checkBox">
+                <input type = "checkbox" class="checkBox" ${todo.isActive ? 'checked':''}>
                 ${todo.taskText} ${formatDate(todo.datetime)} 
                 <button class = "delete"
                 value = ${todo.id}> x </button>
         </li>`
     )
 }
-
-/* add click on delete button */
-
-$('#todo-list').on('click', '.delete', function (event) {
-    removeItem(event.target.value);
-    $(this).closest('li').remove();
-});
-
-$(document).on('click', '.all-del', function () {
-    removeAllItems();
-    $('#todo-list').empty();
-});
-
-// $('#todo-list :checkbox').change(function () {
-//     if (this.checked) {
-
-//     } else {
-
-//     }
-// });
 
 /**
  * 1) Get todos from LS
@@ -107,7 +112,7 @@ function createTodo(taskText) {
     }
 }
 
-/* save tods to LS */
+/* save todos to LS */
 
 function saveTodosToStorage(todos) {
     const serializedTodos = JSON.stringify(todos);
@@ -127,10 +132,7 @@ function getTodosFromStorage() {
 
 function formatDate(_date) {
     const date = new Date(_date)
-    console.log('------------------------------------');
-    console.log(_date);
-    console.log('------------------------------------');
-    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}/${date.getHours()}:${date.getMinutes()};`
+    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()};`
 }
 
 /* delete todo item from LS */
@@ -149,30 +151,32 @@ function removeAllItems() {
 }
 
 
-/* checkbox status */
+/* checkbox status on LS */
 
-// $('#checkBox').click(function(todo) {
-//     if (todo.isActive.checked) {
-//         localStorage.checked = true;
-//     } else {
-//         localStorage.checked = false;
-//     }
+function onClickCheckBox(event) {
+    const oldChecks = JSON.parse(localStorage.getItem(TODOS_KEY));
 
-// });
+    let checkedItemIndex = oldChecks.findIndex(el => {
+        return el.id == $(this).parent().attr('attr-id')
+    })
 
+    let checkedItem = oldChecks[checkedItemIndex];
+    checkedItem.isActive = $(this).prop('checked');
+    localStorage.setItem(TODOS_KEY, JSON.stringify(oldChecks));
+}
 
-// function save() {
-//     var checkbox = document.getElementByClassName("checkBox");
-//     localStorage.setItem("checkBox", checkbox.checked);
-// }
+/* add check all button and save changes to LS */
 
-// //for loading
+function checkedAll() {
+    const notAllcheckedItems = JSON.parse(localStorage.getItem(TODOS_KEY));
 
-// let checked = JSON.parse(localStorage.getItem("checkBox"));
-// document.getElementByClassName("checkBox").checked = checked;
+    let allCheckedItems = notAllcheckedItems.map(el => {
+        el.isActive = true;
+        return el;
+    });
 
-// $(document).ready(function() {
+    $(".checkBox").attr('checked', true);
 
-//     document.querySelector('#checkBox').checked = localStorage.checked
-
-// })
+    localStorage.setItem(TODOS_KEY, JSON.stringify(allCheckedItems));
+}
+//  - написать для uncheck
