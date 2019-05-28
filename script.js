@@ -11,8 +11,6 @@ $(document).ready(function() {
 
 });
 
-
-
 /* create new to do after clicking the button "Add" */
 
 $('#addtoDo').click(function() {
@@ -43,9 +41,18 @@ $('#toDoName').keyup(function(event) {
 });
 
 
-
-
-/* add click on delete button */
+/** add click on button:  
+ * 1.delete 
+ * 2.delete all 
+ * 3.checkbox
+ * 4.check all
+ * 5.uncheck all
+ * 6.show done tasks
+ * 7.show all tasks
+ * 8.show active tasks
+ * 9.sort todo-list by name
+ * 10.sort to-do list by datetime
+ */
 
 $('#todo-list').on('click', '.delete', function(event) {
     removeItem(event.target.value);
@@ -57,18 +64,26 @@ $(document).on('click', '.all-del', function() {
     $('#todo-list').empty();
 });
 
+$('#todo-list').on('click', '.checkBox', clickCheckBox)
 
-/* add click on checkbox */
+$('.check-all').on('click', showCheckedAll)
 
-$('#todo-list').on('click', '.checkBox', onClickCheckBox)
+$('#uncheck').on('click', showAllUncheck)
 
-$('.check-all').on('click', checkedAll)
+$('#done').on('click', showDoneTasks)
+
+$('#all').on('click', showAllTasks)
+
+$('#active').on('click', showActiveTasks)
+
+$('#getByName').on('click', sortItemsByName)
+
+$('#getByDate').on('click', sortItemByDate)
 
 
 /* draw todo in LS */
 
 function drawTodo(todo) {
-    console.log(todo.isActive)
     $('#todo-list').append(
         `<li attr-id=${todo.id}>
                 <input type = "checkbox" class="checkBox" ${todo.isActive ? 'checked':''}>
@@ -79,24 +94,27 @@ function drawTodo(todo) {
     )
 }
 
+
+
 /**
  * 1) Get todos from LS
  * 2) todos.forEach(todo => drawTodo(todo))
  */
 
-
 function initTodos() {
-
     todos = getTodosFromStorage();
     drawTodos(todos);
 }
 
 function drawTodos(todos) {
+    $('#todo-list').empty()
     todos.forEach(todo => {
         return drawTodo(todo);
     });
 
 }
+
+/* draww todos in LS */
 
 function drawTaskListFromLS() {
     const taskItem = localStorage.getItem('array');
@@ -132,7 +150,11 @@ function getTodosFromStorage() {
 
 function formatDate(_date) {
     const date = new Date(_date)
-    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()};`
+    let minutes = date.getMinutes();
+    if (minutes < 10) {
+        minutes = `0${minutes}`
+    }
+    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${minutes};`
 }
 
 /* delete todo item from LS */
@@ -153,7 +175,8 @@ function removeAllItems() {
 
 /* checkbox status on LS */
 
-function onClickCheckBox(event) {
+function clickCheckBox(event) {
+    console.log('here check')
     const oldChecks = JSON.parse(localStorage.getItem(TODOS_KEY));
 
     let checkedItemIndex = oldChecks.findIndex(el => {
@@ -161,22 +184,82 @@ function onClickCheckBox(event) {
     })
 
     let checkedItem = oldChecks[checkedItemIndex];
+
     checkedItem.isActive = $(this).prop('checked');
     localStorage.setItem(TODOS_KEY, JSON.stringify(oldChecks));
 }
 
 /* add check all button and save changes to LS */
 
-function checkedAll() {
+function showCheckedAll() {
     const notAllcheckedItems = JSON.parse(localStorage.getItem(TODOS_KEY));
 
     let allCheckedItems = notAllcheckedItems.map(el => {
         el.isActive = true;
         return el;
+
     });
-
     $(".checkBox").attr('checked', true);
-
     localStorage.setItem(TODOS_KEY, JSON.stringify(allCheckedItems));
 }
-//  - написать для uncheck
+/* add uncheck all button and save changes to LS */
+
+function showAllUncheck() {
+    const notAllUncheckedItems = JSON.parse(localStorage.getItem(TODOS_KEY));
+    let allUncheckedItems = notAllUncheckedItems.map(el => {
+        el.isActive = false;
+        return el;
+    });
+    $(".checkBox").attr('checked', false);
+    localStorage.setItem(TODOS_KEY, JSON.stringify(allUncheckedItems));
+}
+
+
+function showDoneTasks() {
+    console.log('here done')
+    const todos = getTodosFromStorage()
+    const doneTasks = todos.filter(el => {
+        return el.isActive != false;
+    });
+    drawTodos(doneTasks);
+
+}
+
+function showActiveTasks() {
+    const todos = getTodosFromStorage()
+    const activeTasks = todos.filter(el => {
+        return el.isActive != true;
+    });
+    drawTodos(activeTasks);
+}
+
+function showAllTasks() {
+    const todos = getTodosFromStorage()
+    drawTodos(todos);
+}
+
+
+function sortItemsByName() {
+    const todos = getTodosFromStorage()
+    const nameItems = todos.sort((a, b) => {
+        return a.taskText < b.taskText ? -1 : a.taskText > b.taskText ? 1 : 0
+    })
+    drawTodos(nameItems);
+}
+
+function sortItemByDate() {
+    const todos = getTodosFromStorage()
+    const datetimeItems = todos.sort((a, b) => {
+        return a.datetime > b.datetime ? -1 : a.datetime < b.datetime ? 1 : 0
+    });
+    drawTodos(datetimeItems);
+}
+
+// function finishDoneItems() {
+//     if (this.is(':checked')) {
+//         $('#todolist').appendChild('li');
+
+//     } else {
+//         $('#todolist').prependChild('li');
+//     }
+// }
