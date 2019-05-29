@@ -178,15 +178,31 @@ function removeAllItems() {
 function clickCheckBox(event) {
     console.log('here check')
     const oldChecks = JSON.parse(localStorage.getItem(TODOS_KEY));
-
+    let checkedTodo = {}
+    const newTodos = oldChecks.filter(el => {
+        if (el.id === +$(this).parent().attr('attr-id')) {
+            el.isActive = !el.isActive
+            checkedTodo = el
+        }
+        return el.id !== +$(this).parent().attr('attr-id')
+    })    
+    
+    if (checkedTodo.isActive) {
+        newTodos.push(checkedTodo);
+    }
+    else {
+        newTodos.unshift(checkedTodo)
+    }
+    
+    drawTodos(newTodos);
+    
     let checkedItemIndex = oldChecks.findIndex(el => {
         return el.id == $(this).parent().attr('attr-id')
     })
 
     let checkedItem = oldChecks[checkedItemIndex];
-
     checkedItem.isActive = $(this).prop('checked');
-    localStorage.setItem(TODOS_KEY, JSON.stringify(oldChecks));
+localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
 }
 
 /* add check all button and save changes to LS */
@@ -255,11 +271,7 @@ function sortItemByDate() {
     drawTodos(datetimeItems);
 }
 
-// function finishDoneItems() {
-//     if (this.is(':checked')) {
-//         $('#todolist').appendChild('li');
-
-//     } else {
-//         $('#todolist').prependChild('li');
-//     }
-// }
+function finishDoneItems(id) {
+        const oldTodos = JSON.parse(localStorage.getItem(TODOS_KEY));
+        
+}
