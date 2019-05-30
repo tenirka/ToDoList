@@ -64,7 +64,10 @@ $(document).on('click', '.all-del', function() {
     $('#todo-list').empty();
 });
 
-$('#todo-list').on('click', '.checkBox', clickCheckBox)
+$('#todo-list').on('click', '.checked', function(event) {
+    const id = ($(this).parent().parent().attr('attr-id'))
+    clickCheckBox(id)
+})
 
 $('.check-all').on('click', showCheckedAll)
 
@@ -81,19 +84,20 @@ $('#getByName').on('click', sortItemsByName)
 $('#getByDate').on('click', sortItemByDate)
 
 
+
 /* draw todo in LS */
 
 function drawTodo(todo) {
     $('#todo-list').append(
         `<li attr-id=${todo.id}>
-                <input type = "checkbox" class="checkBox" ${todo.isActive ? 'checked':''}>
+        <input type="checkbox" class="check1" ${todo.isActive ? 'checked':''}>
+        <label for="check1"><div class="checked"><i></i></div></label>
                 ${todo.taskText} ${formatDate(todo.datetime)} 
                 <button class = "delete"
                 value = ${todo.id}> x </button>
         </li>`
     )
 }
-
 
 
 /**
@@ -106,9 +110,9 @@ function initTodos() {
     drawTodos(todos);
 }
 
-function drawTodos(todos) {
-    $('#todo-list').empty()
-    todos.forEach(todo => {
+function drawTodos(newTodos) {
+    $('#todo-list').empty();
+    newTodos.forEach(todo => {
         return drawTodo(todo);
     });
 
@@ -175,35 +179,27 @@ function removeAllItems() {
 
 /* checkbox status on LS */
 
-function clickCheckBox(event) {
-    console.log('here check')
+function clickCheckBox(id) {
+    console.log('id', id)
     const oldChecks = JSON.parse(localStorage.getItem(TODOS_KEY));
     let checkedTodo = {}
     const newTodos = oldChecks.filter(el => {
-        if (el.id === +$(this).parent().attr('attr-id')) {
+        if (el.id === +id) {
             el.isActive = !el.isActive
-            checkedTodo = el
+            checkedTodo = el;
         }
-        return el.id !== +$(this).parent().attr('attr-id')
-    })    
-    
+        return el.id !== +id
+    })
     if (checkedTodo.isActive) {
         newTodos.push(checkedTodo);
-    }
-    else {
+    } else {
         newTodos.unshift(checkedTodo)
     }
-    
     drawTodos(newTodos);
-    
-    let checkedItemIndex = oldChecks.findIndex(el => {
-        return el.id == $(this).parent().attr('attr-id')
-    })
 
-    let checkedItem = oldChecks[checkedItemIndex];
-    checkedItem.isActive = $(this).prop('checked');
-localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
+    localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
 }
+
 
 /* add check all button and save changes to LS */
 
@@ -232,7 +228,6 @@ function showAllUncheck() {
 
 
 function showDoneTasks() {
-    console.log('here done')
     const todos = getTodosFromStorage()
     const doneTasks = todos.filter(el => {
         return el.isActive != false;
@@ -269,9 +264,4 @@ function sortItemByDate() {
         return a.datetime > b.datetime ? -1 : a.datetime < b.datetime ? 1 : 0
     });
     drawTodos(datetimeItems);
-}
-
-function finishDoneItems(id) {
-        const oldTodos = JSON.parse(localStorage.getItem(TODOS_KEY));
-        
 }
