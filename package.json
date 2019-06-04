@@ -1,0 +1,23 @@
+{
+  "name": "ToDoList",
+  "version": "1.0.0",
+  "description": "ToDoList",
+  "main": "jquery-3.4.1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tenirka/ToDoList.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tenirka/ToDoList/issues"
+  },
+  "homepage": "https://github.com/tenirka/ToDoList#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
