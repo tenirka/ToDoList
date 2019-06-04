@@ -19,12 +19,11 @@ try {
     console.log(e);
 }
 
-connection.end(function(err) {
-    if (err) {
-        return console.log("Ошибка: " + err.message);
-    }
-    console.log("Подключение закрыто");
-});
+connection.query("CREATE DATABASE todosdb",
+    function(err, results) {
+        if (err) console.log(err);
+        else console.log("База данных создана");
+    });
 
 
 api.use('/public', express.static(__dirname + '/public'));
