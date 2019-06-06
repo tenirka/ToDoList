@@ -17,6 +17,7 @@ $('#addtoDo').click(function() {
 
 
     const todo = createTodo(taskText);
+    delete todo.id
     saveTodo(todo, drawTodo)
     input.value = "";
 
@@ -127,7 +128,7 @@ function getAllTodos(callback) {
 
     $.ajax({
         method: "GET",
-        url: 'http://localhost:3000/',
+        url: 'http://localhost:3000/todo-list',
         dataType: "json",
         success: (response) => {
             callback()
@@ -140,7 +141,7 @@ function saveTodo(todo, callback) {
 
     $.ajax({
         method: "POST",
-        url: 'http://localhost:3000/',
+        url: 'http://localhost:3000/todo-list',
         data: todo,
         success: (response) => {
             callback(todo)
@@ -152,8 +153,9 @@ function saveTodo(todo, callback) {
 }
 
 function deleteTodoById(id, callback) {
+    console.log(id)
     $.ajax({
-        url: `http://localhost:3000/${id}`,
+        url: `http://localhost:3000/todo-list/${id}`,
         type: 'DELETE',
         success: (result) => {
             callback(todo)

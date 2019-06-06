@@ -19,15 +19,21 @@ api.get('/todo-list', async(req, res) => {
 
 api.post('/todo-list', urlencodedParser, async(req, res) => {
     try {
+        console.log(req.body)
         const payload = req.body;
+
         if (!payload.taskText) {
+            console.log(payload.taskText)
             return res.status(400).json({ message: 'Field taskText is missing' });
         }
+        console.log('payload', payload)
+        console.log('body', req.body)
         const catalog = await db.todo_item.create(payload);
-        console.log(catalog);
+        console.log("CATALOG ", catalog);
         return res.send({ catalog })
     } catch (error) {
-        return res.status(500).json({ message: 'Oops' })
+        console.log(error)
+        return res.status(500).json({ message: 'oops' })
     }
 });
 
