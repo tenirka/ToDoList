@@ -6,8 +6,7 @@ document.getElementById("todo-list").innerHTML = todos;
 const input = document.getElementById("toDoName");
 
 $(document).ready(function() {
-    initTodos();
-    createTodo();
+    getAllTodos(drawTodo);
 
 });
 
@@ -16,17 +15,9 @@ $(document).ready(function() {
 $('#addtoDo').click(function() {
     let taskText = $('#toDoName').val();
 
-    /**
-     * 1) Create todo object 
-     * 2) Put this obj to todos 
-     * 3) Save todos to LS 
-     * 4) Draw todo 
-     */
 
     const todo = createTodo(taskText);
-    todos.push(todo);
-    saveTodosToStorage(todos);
-    drawTodo(todo);
+    saveTodo(todo, drawTodo)
     input.value = "";
 
 });
@@ -55,7 +46,7 @@ $('#toDoName').keyup(function(event) {
  */
 
 $('#todo-list').on('click', '.delete', function(event) {
-    removeItem(event.target.value);
+    deleteTodoById(event.target.value);
     $(this).closest('li').remove();
 });
 
@@ -100,16 +91,6 @@ function drawTodo(todo) {
 }
 
 
-/**
- * 1) Get todos from LS
- * 2) todos.forEach(todo => drawTodo(todo))
- */
-
-function initTodos() {
-    todos = getTodosFromStorage();
-    drawTodos(todos);
-}
-
 function drawTodos(newTodos) {
     $('#todo-list').empty();
     newTodos.forEach(todo => {
@@ -118,7 +99,7 @@ function drawTodos(newTodos) {
 
 }
 
-/* draww todos in LS */
+/* draw todos in LS */
 
 function drawTaskListFromLS() {
     const taskItem = localStorage.getItem('array');
@@ -130,24 +111,85 @@ function createTodo(taskText) {
         id: +new Date(),
         taskText: taskText,
         datetime: new Date(),
-        isActive: false,
+        isActive: false
     }
 }
+
+/**
+ * 
+ * getAllTodos
+ * createTodo
+ * deleteTodoById
+ * 
+ */
+
+function getAllTodos(callback) {
+
+    $.ajax({
+        method: "GET",
+        url: 'http://localhost:3000/',
+        dataType: "json",
+        success: (response) => {
+            callback()
+        }
+    });
+
+}
+
+function saveTodo(todo, callback) {
+
+    $.ajax({
+        method: "POST",
+        url: 'http://localhost:3000/',
+        data: todo,
+        success: (response) => {
+            callback(todo)
+        },
+        error: (err) => anError()
+
+    });
+
+}
+
+function deleteTodoById(id, callback) {
+    $.ajax({
+        url: `http://localhost:3000/${id}`,
+        type: 'DELETE',
+        success: (result) => {
+            callback(todo)
+        },
+        error: (err) => anError()
+
+    });
+}
+
+function anError(status, errorMsg) {
+    const errorDiv = $('.error').text("Статус: " + status + " Ошибка: " + errorMsg)
+    errorDiv.show(10, function() {
+        setTimeout(function() {
+                errorDiv.hide(300);
+            },
+            5000);
+    });
+}
+
+
+
 
 /* save todos to LS */
 
-function saveTodosToStorage(todos) {
-    const serializedTodos = JSON.stringify(todos);
-    localStorage.setItem(TODOS_KEY, serializedTodos);
-}
+// function saveTodosToStorage(todos) {
+//     const serializedTodos = JSON.stringify(todos);
+//     localStorage.setItem(TODOS_KEY, serializedTodos);
+// }
 
-function getTodosFromStorage() {
-    const todos = JSON.parse(localStorage.getItem(TODOS_KEY));
-    if (!todos) {
-        return [];
-    }
-    return todos;
-}
+// function getTodosFromStorage() {
+//     const todos = JSON.parse(localStorage.getItem(TODOS_KEY));
+//     if (!todos) {
+//         return [];
+//     }
+//     return todos;
+// }
 
 /* add date and time near the task */
 

@@ -50,6 +50,10 @@ li {
     margin: -5.5px;
 }
 
+.error {
+    display: hidden;
+}
+
 .check1 {
     display: none;
 }
