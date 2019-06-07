@@ -10,29 +10,23 @@ api.use('/public', express.static(__dirname + '/public'));
 api.get('/todo-list', async(req, res) => {
     try {
         const list = await db.todo_item.findAll({});
-        console.log(list);
         return res.json({ list })
     } catch (error) {
-        return res.status(500).json({ message: 'Oops' })
+        console.log(error.message)
+        return res.status(500).json({ message: error.message })
     }
 })
 
 api.post('/todo-list', urlencodedParser, async(req, res) => {
     try {
-        console.log(req.body)
         const payload = req.body;
 
         if (!payload.taskText) {
-            console.log(payload.taskText)
             return res.status(400).json({ message: 'Field taskText is missing' });
         }
-        console.log('payload', payload)
-        console.log('body', req.body)
-        const catalog = await db.todo_item.create(payload);
-        console.log("CATALOG ", catalog);
-        return res.send({ catalog })
+        const item = await db.todo_item.create(payload);
+        return res.json({ item })
     } catch (error) {
-        console.log(error)
         return res.status(500).json({ message: 'oops' })
     }
 });
@@ -46,10 +40,23 @@ api.delete('/todo-list/:id', async(req, res) => {
         }
         await todoItem.destroy()
         return res.json({ message: 'Model deleted' });
+
     } catch (error) {
         return res.status(500).json({ message: 'Oops' })
     }
 })
+
+api.delete('/todo-list', async(req, res) => {
+    const { id } = req.params
+    try {
+        const list = await db.todo_item.findAll(id)
+        await list.destroy()
+        return res.json({ message: 'All items deleted' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Oops' })
+    }
+})
+
 
 api.get("/", function(req, res) {
 

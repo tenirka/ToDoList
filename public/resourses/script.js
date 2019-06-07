@@ -6,7 +6,7 @@ document.getElementById("todo-list").innerHTML = todos;
 const input = document.getElementById("toDoName");
 
 $(document).ready(function() {
-    getAllTodos(drawTodo);
+    getAllTodos(drawTodos);
 
 });
 
@@ -17,7 +17,6 @@ $('#addtoDo').click(function() {
 
 
     const todo = createTodo(taskText);
-    delete todo.id
     saveTodo(todo, drawTodo)
     input.value = "";
 
@@ -47,17 +46,21 @@ $('#toDoName').keyup(function(event) {
  */
 
 $('#todo-list').on('click', '.delete', function(event) {
-    deleteTodoById(event.target.value);
-    $(this).closest('li').remove();
+    const id = ($(this).parent().attr('attr-id'))
+    deleteTodoById(id, function() {
+        $(this).closest('li').remove()
+    });
 });
 
 $(document).on('click', '.all-del', function() {
-    removeAllItems();
-    $('#todo-list').empty();
+    const id = ($(this).parent().attr('attr-id'));
+    deleteAllItems(id, function() {
+        $('#todo-list').empty();
+    });
 });
 
 $('#todo-list').on('click', '.checked', function(event) {
-    const id = ($(this).parent().parent().attr('attr-id'))
+    const id = ($(this).parent().attr('attr-id'))
     clickCheckBox(id)
 })
 
@@ -102,14 +105,13 @@ function drawTodos(newTodos) {
 
 /* draw todos in LS */
 
-function drawTaskListFromLS() {
-    const taskItem = localStorage.getItem('array');
-}
+// function drawTaskListFromLS() {
+//     const taskItem = localStorage.getItem('array');
+// }
 
 
 function createTodo(taskText) {
     return {
-        id: +new Date(),
         taskText: taskText,
         datetime: new Date(),
         isActive: false
@@ -129,10 +131,10 @@ function getAllTodos(callback) {
     $.ajax({
         method: "GET",
         url: 'http://localhost:3000/todo-list',
-        dataType: "json",
         success: (response) => {
-            callback()
-        }
+            callback(response.list)
+        },
+        dataType: "json"
     });
 
 }
@@ -144,7 +146,7 @@ function saveTodo(todo, callback) {
         url: 'http://localhost:3000/todo-list',
         data: todo,
         success: (response) => {
-            callback(todo)
+            callback(response.item)
         },
         error: (err) => anError()
 
@@ -153,16 +155,26 @@ function saveTodo(todo, callback) {
 }
 
 function deleteTodoById(id, callback) {
-    console.log(id)
     $.ajax({
         url: `http://localhost:3000/todo-list/${id}`,
         type: 'DELETE',
         success: (result) => {
-            callback(todo)
+            callback()
         },
         error: (err) => anError()
 
     });
+}
+
+function deleteAllItems(id, callback) {
+    $.ajax({
+        url: 'http://localhost:3000/todo-list',
+        type: 'DELETE',
+        success: (result) => {
+            callback()
+        },
+        error: (err) => anError()
+    })
 }
 
 function anError(status, errorMsg) {
@@ -175,23 +187,6 @@ function anError(status, errorMsg) {
     });
 }
 
-
-
-
-/* save todos to LS */
-
-// function saveTodosToStorage(todos) {
-//     const serializedTodos = JSON.stringify(todos);
-//     localStorage.setItem(TODOS_KEY, serializedTodos);
-// }
-
-// function getTodosFromStorage() {
-//     const todos = JSON.parse(localStorage.getItem(TODOS_KEY));
-//     if (!todos) {
-//         return [];
-//     }
-//     return todos;
-// }
 
 /* add date and time near the task */
 
@@ -207,27 +202,24 @@ function formatDate(_date) {
 
 /* delete todo item from LS */
 
-function removeItem(id) {
-    const oldTodos = JSON.parse(localStorage.getItem(TODOS_KEY));
-    const newTodos = oldTodos.filter(el => {
-        return el.id !== +id
-    })
-    localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
-}
+// function removeItem() {
+//     deleteTodoById(id, drawTodos)
+// }
 
-function removeAllItems() {
-    localStorage.setItem(TODOS_KEY, JSON.stringify([]));
-    return
-}
+// function removeAllItems() {
+//     localStorage.setItem(TODOS_KEY, JSON.stringify([]));
+//     return
+// }
+
 
 
 /* checkbox status on LS */
 
 function clickCheckBox(id) {
     console.log('id', id)
-    const oldChecks = JSON.parse(localStorage.getItem(TODOS_KEY));
+        // const oldChecks = JSON.parse(localStorage.getItem(TODOS_KEY));
     let checkedTodo = {}
-    const newTodos = oldChecks.filter(el => {
+    const newTodos = todos.filter(el => {
         if (el.id === +id) {
             el.isActive = !el.isActive
             checkedTodo = el;
@@ -241,7 +233,7 @@ function clickCheckBox(id) {
     }
     drawTodos(newTodos);
 
-    localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
+    // localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
 }
 
 
