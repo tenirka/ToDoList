@@ -14,12 +14,9 @@ $(document).ready(function() {
 
 $('#addtoDo').click(function() {
     let taskText = $('#toDoName').val();
-
-
     const todo = createTodo(taskText);
-    saveTodo(todo, drawTodo)
+    saveTodo(todo, drawTodo);
     input.value = "";
-
 });
 
 
@@ -60,23 +57,23 @@ $(document).on('click', '.all-del', function() {
 });
 
 $('#todo-list').on('click', '.checked', function(event) {
-    const id = ($(this).parent().attr('attr-id'))
+    const id = ($(this).parent().parent().attr('attr-id'))
     clickCheckBox(id)
 })
 
-$('.check-all').on('click', showCheckedAll)
+$('.check-all').on('click', showCheckedAll);
 
-$('#uncheck').on('click', showAllUncheck)
+$('#uncheck').on('click', showAllUncheck);
 
-$('#done').on('click', showDoneTasks)
+$('#done').on('click', showDoneTasks(drawTodos));
 
-$('#all').on('click', showAllTasks)
+$('#all').on('click', showAllTasks(drawTodos));
 
-$('#active').on('click', showActiveTasks)
+$('#active').on('click', showActiveTasks);
 
-$('#getByName').on('click', sortItemsByName)
+$('#getByName').on('click', sortItemsByName);
 
-$('#getByDate').on('click', sortItemByDate)
+$('#getByDate').on('click', sortItemByDate);
 
 
 
@@ -84,7 +81,7 @@ $('#getByDate').on('click', sortItemByDate)
 
 function drawTodo(todo) {
     $('#todo-list').append(
-        `<li attr-id=${todo.id}>
+        `<li id=${todo.id} attr-id=${todo.id}>
         <input type="checkbox" class="check1" ${todo.isActive ? 'checked':''}>
         <label for="check1"><div class="checked"><i></i></div></label>
                 ${todo.taskText} ${formatDate(todo.datetime)} 
@@ -174,8 +171,21 @@ function deleteAllItems(id, callback) {
             callback()
         },
         error: (err) => anError()
-    })
+    });
 }
+
+function clickCheckBox(id, callback) {
+    $.ajax({
+        method: "POST",
+        url: `http://localhost:3000/todo-list/update/${id}`,
+        data: id,
+        success: 200,
+        error: (err) => anError()
+
+    });
+}
+
+
 
 function anError(status, errorMsg) {
     const errorDiv = $('.error').text("Статус: " + status + " Ошибка: " + errorMsg)
@@ -200,75 +210,35 @@ function formatDate(_date) {
     return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${minutes};`
 }
 
-/* delete todo item from LS */
-
-// function removeItem() {
-//     deleteTodoById(id, drawTodos)
-// }
-
-// function removeAllItems() {
-//     localStorage.setItem(TODOS_KEY, JSON.stringify([]));
-//     return
-// }
-
-
-
-/* checkbox status on LS */
-
-function clickCheckBox(id) {
-    console.log('id', id)
-        // const oldChecks = JSON.parse(localStorage.getItem(TODOS_KEY));
-    let checkedTodo = {}
-    const newTodos = todos.filter(el => {
-        if (el.id === +id) {
-            el.isActive = !el.isActive
-            checkedTodo = el;
-        }
-        return el.id !== +id
-    })
-    if (checkedTodo.isActive) {
-        newTodos.push(checkedTodo);
-    } else {
-        newTodos.unshift(checkedTodo)
-    }
-    drawTodos(newTodos);
-
-    // localStorage.setItem(TODOS_KEY, JSON.stringify(newTodos));
-}
-
-
-/* add check all button and save changes to LS */
-
 function showCheckedAll() {
-    const notAllcheckedItems = JSON.parse(localStorage.getItem(TODOS_KEY));
-
-    let allCheckedItems = notAllcheckedItems.map(el => {
-        el.isActive = true;
-        return el;
+    $.ajax({
+        method: "POST",
+        url: `http://localhost:3000/todo-list/update/`,
+        success: 200,
+        error: (err) => anError()
 
     });
-    $(".checkBox").attr('checked', true);
-    localStorage.setItem(TODOS_KEY, JSON.stringify(allCheckedItems));
 }
-/* add uncheck all button and save changes to LS */
 
 function showAllUncheck() {
-    const notAllUncheckedItems = JSON.parse(localStorage.getItem(TODOS_KEY));
-    let allUncheckedItems = notAllUncheckedItems.map(el => {
-        el.isActive = false;
-        return el;
+    $.ajax({
+        method: "POST",
+        url: `http://localhost:3000/todo-list/uncheck/`,
+        success: 200,
+        error: (err) => anError()
+
     });
-    $(".checkBox").attr('checked', false);
-    localStorage.setItem(TODOS_KEY, JSON.stringify(allUncheckedItems));
 }
 
-
-function showDoneTasks() {
-    const todos = getTodosFromStorage()
-    const doneTasks = todos.filter(el => {
-        return el.isActive != false;
+function showDoneTasks(callback) {
+    $.ajax({
+        method: "GET",
+        url: 'http://localhost:3000/todo-list/checked',
+        success: (response) => {
+            callback(response.list)
+        },
+        dataType: "json"
     });
-    drawTodos(doneTasks);
 
 }
 
@@ -280,9 +250,15 @@ function showActiveTasks() {
     drawTodos(activeTasks);
 }
 
-function showAllTasks() {
-    const todos = getTodosFromStorage()
-    drawTodos(todos);
+function showAllTasks(callback) {
+    $.ajax({
+        method: "GET",
+        url: 'http://localhost:3000/todo-list',
+        success: (response) => {
+            callback(response.list)
+        },
+        dataType: "json"
+    });
 }
 
 
