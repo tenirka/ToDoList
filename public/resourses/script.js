@@ -82,22 +82,28 @@ $('#all').on('click', e => showAllTasks(drawTodos));
 
 $('#active').on('click', e => showActiveTasks(drawTodos));
 
-$('#getByName').on('click', sortItemsByName);
+$('#getByName').on('click', function() {
+    const current = $('#getByName').val()
+    $('#getByName').val(current === 'ASC' ? 'DESC' : 'ASC')
+    getAllTodos(drawTodos, { direction: current, sort: 'taskText' })
+});
 
 $('#getByDate').on('click', function() {
-    sortItems('datetime', 'ASC')
+    const current = $('#getByDate').val();
+    $('#getByDate').val(current === 'ASC' ? 'DESC' : 'ASC')
+    getAllTodos(drawTodos, { direction: current })
 });
 
 
 
-/* draw todo in LS */
+/* draw todo */
 
 function drawTodo(todo) {
     $('#todo-list').append(
         `<li id=${todo.id} attr-id=${todo.id}>
         <input type="checkbox" class="check1" ${todo.isActive ? 'checked':''}>
         <label for="check1"><div class="checked"><i></i></div></label>
-                ${todo.taskText} ${formatDate(todo.datetime)} 
+                <p>${todo.taskText} ${formatDate(todo.datetime)}</p>
                 <button class = "delete"
                 value = ${todo.id}> x </button>
         </li>`
@@ -130,10 +136,11 @@ function createTodo(taskText) {
  * 
  */
 
-function getAllTodos(callback) {
+function getAllTodos(callback, { sort = 'datetime', direction = 'ASC' } = {}) {
 
     $.ajax({
         method: "GET",
+        data: { sort, direction },
         url: 'http://localhost:3000/todo-list',
         success: (response) => {
             callback(response.list)
@@ -277,25 +284,11 @@ function showAllTasks(callback) {
     });
 }
 
-
-function sortItemsByName() {
-
-    const todos = getTodosFromStorage()
-    const nameItems = todos.sort((a, b) => {
-        return a.taskText < b.taskText ? -1 : a.taskText > b.taskText ? 1 : 0
-    })
-    drawTodos(nameItems);
-}
-
-function sortItems(sortColumn, dir, callback) {
-    const params = {
-        sort: 'datetime' | 'taskText',
-        dir: 'ASC' | 'DESC'
-    }
+function sortItems({ sort = 'datetime', direction = 'ASC' } = {}, callback) {
     $.ajax({
         method: "GET",
         url: 'http://localhost:3000/todo-list/datesort',
-        data: params,
+        data: { sort, direction },
         success: (response) => {
             callback(response.item)
         },

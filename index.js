@@ -8,41 +8,22 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 api.use('/public', express.static(__dirname + '/public'));
 
 api.get('/todo-list', async(req, res) => {
-        try {
-            const queryObj = {}
-            const { dir, sort } = req.query;
-            if (dir && sort) {
-                return res.query('SELECT * FROM todo_item ORDER BY datetime ASC')
-                    //  order: ['datetime' | 'taskText', 'ASC' | 'DESC']
-
-
-            }
-            const list = await db.todo_item.findAll(queryObj);
-            return res.json({ list })
-        } catch (error) {
-            console.log(error.message)
-            return res.status(500).json({ message: error.message })
-        }
-    })
-    // localhost/todos/todo-list?sort=datetime&dir=ASC
-
-/** api.get('/todo-list/datesort', async(req, res) => {
     try {
-        const searchObj = await db.todo_item.findAll({
+
+        const queryObj = {}
+        const { direction, sort } = req.query;
+        const list = await db.todo_item.findAll({
             order: [
-                ['datetime', 'ASC'],
-                ['taskText', 'ASC'],
-            ],
-            where: {}
+                [sort, direction]
+            ]
         });
-        return res.json({ searchObj })
+        return res.json({ list })
     } catch (error) {
         console.log(error.message)
         return res.status(500).json({ message: error.message })
     }
 })
 
-*/
 api.post('/todo-list/update/:id', urlencodedParser, async(req, res) => {
     try {
         const { id } = req.params
