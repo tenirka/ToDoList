@@ -8,30 +8,41 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 api.use('/public', express.static(__dirname + '/public'));
 
 api.get('/todo-list', async(req, res) => {
+        try {
+            const queryObj = {}
+            const { dir, sort } = req.query;
+            if (dir && sort) {
+                return res.query('SELECT * FROM todo_item ORDER BY datetime ASC')
+                    //  order: ['datetime' | 'taskText', 'ASC' | 'DESC']
+
+
+            }
+            const list = await db.todo_item.findAll(queryObj);
+            return res.json({ list })
+        } catch (error) {
+            console.log(error.message)
+            return res.status(500).json({ message: error.message })
+        }
+    })
+    // localhost/todos/todo-list?sort=datetime&dir=ASC
+
+/** api.get('/todo-list/datesort', async(req, res) => {
     try {
-        const list = await db.todo_item.findAll({});
-        return res.json({ list })
+        const searchObj = await db.todo_item.findAll({
+            order: [
+                ['datetime', 'ASC'],
+                ['taskText', 'ASC'],
+            ],
+            where: {}
+        });
+        return res.json({ searchObj })
     } catch (error) {
         console.log(error.message)
         return res.status(500).json({ message: error.message })
     }
 })
 
-api.post('/todo-list', urlencodedParser, async(req, res) => {
-    try {
-        const payload = req.body;
-
-        if (!payload.taskText) {
-            return res.status(400).json({ message: 'Field taskText is missing' });
-        }
-        const item = await db.todo_item.create(payload);
-        return res.json({ item })
-    } catch (error) {
-        return res.status(500).json({ message: 'oops' })
-    }
-});
-
-
+*/
 api.post('/todo-list/update/:id', urlencodedParser, async(req, res) => {
     try {
         const { id } = req.params
@@ -52,6 +63,20 @@ api.post('/todo-list/update/:id', urlencodedParser, async(req, res) => {
     }
 });
 
+
+api.post('/todo-list', urlencodedParser, async(req, res) => {
+    try {
+        const payload = req.body;
+
+        if (!payload.taskText) {
+            return res.status(400).json({ message: 'Field taskText is missing' });
+        }
+        const item = await db.todo_item.create(payload);
+        return res.json({ item })
+    } catch (error) {
+        return res.status(500).json({ message: 'oops' })
+    }
+});
 
 api.post('/todo-list/update/', urlencodedParser, async(req, res) => {
     try {
@@ -108,6 +133,17 @@ api.get('/todo-list/checked', async(req, res) => {
         return res.status(500).json({ message: error.message })
     }
 })
+
+api.get('/todo-list/active', async(req, res) => {
+    try {
+        const list = await db.todo_item.findAll({ where: { isActive: false } });
+        return res.json({ list })
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).json({ message: error.message })
+    }
+})
+
 
 api.get("/", function(req, res) {
 

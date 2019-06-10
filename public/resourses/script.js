@@ -43,9 +43,9 @@ $('#toDoName').keyup(function(event) {
  */
 
 $('#todo-list').on('click', '.delete', function(event) {
-    const id = ($(this).parent().attr('attr-id'))
+    const id = ($(this).parent().attr('attr-id'));
     deleteTodoById(id, function() {
-        $(this).closest('li').remove()
+        $(`#${id}`).remove();
     });
 });
 
@@ -57,23 +57,36 @@ $(document).on('click', '.all-del', function() {
 });
 
 $('#todo-list').on('click', '.checked', function(event) {
-    const id = ($(this).parent().parent().attr('attr-id'))
-    clickCheckBox(id)
+    const id = $(this).parent().parent().attr('attr-id')
+    const item = clickCheckBox(id, function(item) {
+        const { isActive } = item;
+        $(`#${id} input`).prop('checked', isActive)
+    })
 })
 
-$('.check-all').on('click', showCheckedAll);
+$('.check-all').on('click', function() {
+    doCheckedAll(function() {
+        $("input:checkbox").prop('checked', true);
+    })
+});
 
-$('#uncheck').on('click', showAllUncheck);
+$('#uncheck').on('click', function() {
+    doAllUncheck(function() {
+        $("input:checkbox").prop('checked', false);
+    })
+})
 
-$('#done').on('click', showDoneTasks(drawTodos));
+$('#done').on('click', e => showDoneTasks(drawTodos));
 
-$('#all').on('click', showAllTasks(drawTodos));
+$('#all').on('click', e => showAllTasks(drawTodos));
 
-$('#active').on('click', showActiveTasks);
+$('#active').on('click', e => showActiveTasks(drawTodos));
 
 $('#getByName').on('click', sortItemsByName);
 
-$('#getByDate').on('click', sortItemByDate);
+$('#getByDate').on('click', function() {
+    sortItems('datetime', 'ASC')
+});
 
 
 
@@ -99,12 +112,6 @@ function drawTodos(newTodos) {
     });
 
 }
-
-/* draw todos in LS */
-
-// function drawTaskListFromLS() {
-//     const taskItem = localStorage.getItem('array');
-// }
 
 
 function createTodo(taskText) {
@@ -179,7 +186,9 @@ function clickCheckBox(id, callback) {
         method: "POST",
         url: `http://localhost:3000/todo-list/update/${id}`,
         data: id,
-        success: 200,
+        success: (response) => {
+            callback(response.item)
+        },
         error: (err) => anError()
 
     });
@@ -210,21 +219,25 @@ function formatDate(_date) {
     return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${minutes};`
 }
 
-function showCheckedAll() {
+function doCheckedAll(callback) {
     $.ajax({
         method: "POST",
         url: `http://localhost:3000/todo-list/update/`,
-        success: 200,
+        success: (response) => {
+            callback(response.item)
+        },
         error: (err) => anError()
 
     });
 }
 
-function showAllUncheck() {
+function doAllUncheck(callback) {
     $.ajax({
         method: "POST",
         url: `http://localhost:3000/todo-list/uncheck/`,
-        success: 200,
+        success: (response) => {
+            callback(response.item)
+        },
         error: (err) => anError()
 
     });
@@ -242,12 +255,15 @@ function showDoneTasks(callback) {
 
 }
 
-function showActiveTasks() {
-    const todos = getTodosFromStorage()
-    const activeTasks = todos.filter(el => {
-        return el.isActive != true;
+function showActiveTasks(callback) {
+    $.ajax({
+        method: "GET",
+        url: 'http://localhost:3000/todo-list/active',
+        success: (response) => {
+            callback(response.list)
+        },
+        dataType: "json"
     });
-    drawTodos(activeTasks);
 }
 
 function showAllTasks(callback) {
@@ -263,6 +279,7 @@ function showAllTasks(callback) {
 
 
 function sortItemsByName() {
+
     const todos = getTodosFromStorage()
     const nameItems = todos.sort((a, b) => {
         return a.taskText < b.taskText ? -1 : a.taskText > b.taskText ? 1 : 0
@@ -270,10 +287,18 @@ function sortItemsByName() {
     drawTodos(nameItems);
 }
 
-function sortItemByDate() {
-    const todos = getTodosFromStorage()
-    const datetimeItems = todos.sort((a, b) => {
-        return a.datetime > b.datetime ? -1 : a.datetime < b.datetime ? 1 : 0
+function sortItems(sortColumn, dir, callback) {
+    const params = {
+        sort: 'datetime' | 'taskText',
+        dir: 'ASC' | 'DESC'
+    }
+    $.ajax({
+        method: "GET",
+        url: 'http://localhost:3000/todo-list/datesort',
+        data: params,
+        success: (response) => {
+            callback(response.item)
+        },
+        dataType: "json"
     });
-    drawTodos(datetimeItems);
 }
