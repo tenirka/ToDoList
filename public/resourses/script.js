@@ -78,22 +78,54 @@ $('#uncheck').on('click', function() {
 
 $('#done').on('click', e => showDoneTasks(drawTodos));
 
-$('#all').on('click', e => showAllTasks(drawTodos));
+$('#all').on('click', e => getAllTodos(drawTodos));
 
 $('#active').on('click', e => showActiveTasks(drawTodos));
 
+// $('.sorter-box button').on('click', function() {
+//     this.classList.toggle('rotate')
+//     const current = $('#getByName', '#getByDate', '#getByChecked').val();
+//     $('sorter-box button').val(current === 'ASC' ? 'DESC' : 'ASC')
+//     getAllTodos(drawTodos, { sort: 'taskText', direction: current })
+//     getAllTodos(drawTodos, { sort: 'datetime', direction: current })
+//     getAllTodos(drawTodos, { sort: 'isActive', direction: current });
+
+//     $('sorter-box button').addClass('active')
+// });
+
+// $('.sorter-box button').on('click', function() {
+//     this.classList.toggle('rotate');
+//     const current = $('#getByName').val();
+//     const current = $('#getByDate').val();
+//     const current = $('#getByChecked').val();
+//     $('sorter-box button').val(current === 'ASC' ? 'DESC' : 'ASC')
+//     $('sorter-box button').addClass('active')
+// });
+
 $('#getByName').on('click', function() {
-    const current = $('#getByName').val()
+    this.classList.toggle('rotate')
+    const current = $('#getByName').val();
     $('#getByName').val(current === 'ASC' ? 'DESC' : 'ASC')
-    getAllTodos(drawTodos, { direction: current, sort: 'taskText' })
+    getAllTodos(drawTodos, { sort: 'taskText', direction: current })
+    $('#getByName').addClass('active')
 });
 
 $('#getByDate').on('click', function() {
+    this.classList.toggle('rotate')
     const current = $('#getByDate').val();
     $('#getByDate').val(current === 'ASC' ? 'DESC' : 'ASC')
-    getAllTodos(drawTodos, { direction: current })
+    getAllTodos(drawTodos, { sort: 'datetime', direction: current })
+    $('#getByDate').addClass('active')
 });
 
+
+$('#getByChecked').on('click', function() {
+    this.classList.toggle('rotate')
+    const current = $('#getByChecked').val();
+    $('#getByChecked').val(current === 'ASC' ? 'DESC' : 'ASC')
+    getAllTodos(drawTodos, { sort: 'isActive', direction: current })
+    $('#getByChecked').addClass('active')
+});
 
 
 /* draw todo */
@@ -136,7 +168,7 @@ function createTodo(taskText) {
  * 
  */
 
-function getAllTodos(callback, { sort = 'datetime', direction = 'ASC' } = {}) {
+function getAllTodos(callback, { sort, direction } = {}) {
 
     $.ajax({
         method: "GET",
@@ -260,7 +292,7 @@ function showDoneTasks(callback) {
         dataType: "json"
     });
 
-}
+};
 
 function showActiveTasks(callback) {
     $.ajax({
@@ -268,29 +300,6 @@ function showActiveTasks(callback) {
         url: 'http://localhost:3000/todo-list/active',
         success: (response) => {
             callback(response.list)
-        },
-        dataType: "json"
-    });
-}
-
-function showAllTasks(callback) {
-    $.ajax({
-        method: "GET",
-        url: 'http://localhost:3000/todo-list',
-        success: (response) => {
-            callback(response.list)
-        },
-        dataType: "json"
-    });
-}
-
-function sortItems({ sort = 'datetime', direction = 'ASC' } = {}, callback) {
-    $.ajax({
-        method: "GET",
-        url: 'http://localhost:3000/todo-list/datesort',
-        data: { sort, direction },
-        success: (response) => {
-            callback(response.item)
         },
         dataType: "json"
     });

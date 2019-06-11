@@ -13,14 +13,18 @@
     <div class="error"></div>
     <h1>To do list</h1>
     <div>
-        <!--  add input and button  -->
         <div class="main">
             <input type="text" id="toDoName" placeholder="What you want to do?">
             <button id="addtoDo">Add</button>
-            <hr>
-            <button id="getByName" value="ASC">↓</button> |
-            <button id="getByDate" value="ASC">↓</button>
         </div>
+        ______________________________________________________________________________________________
+
+        <div class="sorter-box">
+            <div> Title <button id="getByName" value="ASC"></button></div>
+            <div> Date <button id="getByDate" value="ASC"></button></div>
+            <div> Checked <button id="getByChecked" value="ASC"></button></div>
+        </div>
+
         <div id="todo-list">
 
             <li>
@@ -31,13 +35,16 @@
             </li>
 
         </div>
+        ______________________________________________________________________________________________
+        <div class="action-box">
+            <button class="check-all">Check all</button>
+            <button id="uncheck">Uncheck all</button>
+            <button id="all">All</button>
+            <button id="active">Active</button>
+            <button id="done">Done</button>
+            <button class="all-del">Delete all</button>
+        </div>
 
-        <button class="check-all">Check all</button>
-        <button id="uncheck">Uncheck all</button>
-        <button id="all">All</button>
-        <button id="active">Active</button>
-        <button id="done">Done</button>
-        <button class="all-del">Delete all</button>
 
     </div>
     <script src="/public/resourses/jquery-3.4.1.js"></script>
