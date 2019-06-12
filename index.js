@@ -12,6 +12,11 @@ api.get('/todo-list', async(req, res) => {
 
         const queryObj = {}
         const { sort, direction } = req.query;
+
+        console.log('sort', sort)
+
+        console.log('direction', direction)
+
         if (sort && direction) {
             queryObj.order = [
                 [sort, direction]
@@ -19,11 +24,6 @@ api.get('/todo-list', async(req, res) => {
         }
 
         const list = await db.todo_item.findAll(queryObj);
-        // req.query = queryObj
-        // if (req.query.order) {
-        //     console.log(queryObj)
-        //     return res.json(queryObj)
-        // };
 
         return res.json({ list })
     } catch (error) {

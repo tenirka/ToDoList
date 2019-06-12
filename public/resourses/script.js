@@ -82,10 +82,31 @@ $('#all').on('click', e => getAllTodos(drawTodos));
 
 $('#active').on('click', e => showActiveTasks(drawTodos));
 
-// $('.sorter-box button').on('click', function() {
-//     this.classList.toggle('rotate')
-//     const current = $('#getByName', '#getByDate', '#getByChecked').val();
-//     $('sorter-box button').val(current === 'ASC' ? 'DESC' : 'ASC')
+$(function() {
+        const buttons = $('#getByName, #getByDate, #getByChecked');
+        buttons.click(function() {
+            const current = $(this).val();
+            $(this).val(current === 'ASC' ? 'DESC' : 'ASC')
+            this.classList.toggle('rotate');
+            let sort = 'taskText';
+            if ($(this).attr('id') == 'getByDate') {
+                sort = 'datetime'
+            } else if ($(this).attr('id') == 'getByChecked') {
+                sort = 'isActive'
+            }
+
+            //buttons.not($(this)).removeClass('notactive').next();
+            buttons.not($(this)).removeClass('active').next();
+            $(this).addClass('active').next();
+            //buttons.not($(this)).addClass('notactive').next();
+
+            getAllTodos(drawTodos, { sort, direction: current });
+
+        });
+
+    })
+    //     
+
 //     getAllTodos(drawTodos, { sort: 'taskText', direction: current })
 //     getAllTodos(drawTodos, { sort: 'datetime', direction: current })
 //     getAllTodos(drawTodos, { sort: 'isActive', direction: current });
@@ -93,7 +114,7 @@ $('#active').on('click', e => showActiveTasks(drawTodos));
 //     $('sorter-box button').addClass('active')
 // });
 
-// $('.sorter-box button').on('click', function() {
+// $('.sorter-box button').on('click', function(id) {
 //     this.classList.toggle('rotate');
 //     const current = $('#getByName').val();
 //     const current = $('#getByDate').val();
@@ -102,30 +123,29 @@ $('#active').on('click', e => showActiveTasks(drawTodos));
 //     $('sorter-box button').addClass('active')
 // });
 
-$('#getByName').on('click', function() {
-    this.classList.toggle('rotate')
-    const current = $('#getByName').val();
-    $('#getByName').val(current === 'ASC' ? 'DESC' : 'ASC')
-    getAllTodos(drawTodos, { sort: 'taskText', direction: current })
-    $('#getByName').addClass('active')
-});
+// $('#getByName').on('click', function() {
+//     this.classList.toggle('rotate')
+//     const current = $('#getByName').val();
+//     $('#getByName').val(current === 'ASC' ? 'DESC' : 'ASC')
+//     getAllTodos(drawTodos, { sort: 'taskText', direction: current })
+//     $('#getByName').addClass('active')
+// });
 
-$('#getByDate').on('click', function() {
-    this.classList.toggle('rotate')
-    const current = $('#getByDate').val();
-    $('#getByDate').val(current === 'ASC' ? 'DESC' : 'ASC')
-    getAllTodos(drawTodos, { sort: 'datetime', direction: current })
-    $('#getByDate').addClass('active')
-});
+// $('#getByDate').on('click', function() {
+//     this.classList.toggle('rotate')
+//     const current = $('#getByDate').val();
+//     $('#getByDate').val(current === 'ASC' ? 'DESC' : 'ASC')
+//     getAllTodos(drawTodos, { sort: 'datetime', direction: current })
+//     $('#getByDate').addClass('active')
+// });
 
-
-$('#getByChecked').on('click', function() {
-    this.classList.toggle('rotate')
-    const current = $('#getByChecked').val();
-    $('#getByChecked').val(current === 'ASC' ? 'DESC' : 'ASC')
-    getAllTodos(drawTodos, { sort: 'isActive', direction: current })
-    $('#getByChecked').addClass('active')
-});
+// $('#getByChecked').on('click', function() {
+//     this.classList.toggle('rotate')
+//     const current = $('#getByChecked').val();
+//     $('#getByChecked').val(current === 'ASC' ? 'DESC' : 'ASC')
+//     getAllTodos(drawTodos, { sort: 'isActive', direction: current })
+//     $('#getByChecked').addClass('active')
+// });
 
 
 /* draw todo */

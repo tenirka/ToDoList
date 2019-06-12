@@ -24,6 +24,10 @@ button {
     content: "↓";
 }
 
+.sorter-box button.notactive:before {
+    content: "↓";
+}
+
 .sorter-box button {
     width: 30px;
     height: 30px;
