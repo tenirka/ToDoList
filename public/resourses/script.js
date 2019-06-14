@@ -56,97 +56,66 @@ $(document).on('click', '.all-del', function() {
     });
 });
 
-$('#todo-list').on('click', '.checked', function(event) {
+/*$('#todo-list').on('click', '.checked', function(event) {
     const id = $(this).parent().parent().attr('attr-id')
     const item = clickCheckBox(id, function(item) {
         const { isActive } = item;
         $(`#${id} input`).prop('checked', isActive)
     })
+})*/
+
+
+$('#todo-list').on('click', '.checked', function(event) {
+    const id = $(this).parent().parent().attr('attr-id')
+    const item = clickCheckBox(id, false, function(item) {
+        const { isActive } = item
+        $(`#${id} input`).prop('checked', isActive)
+    })
 })
 
-$('.check-all').on('click', function() {
-    doCheckedAll(function() {
-        $("input:checkbox").prop('checked', true);
+$('.updateCheck-all').on('click', function() {
+    let updating = true
+    if ($(this).attr('id') == 'uncheck') {
+        updating = false
+    }
+    clickCheckBox(-1, updating, function() {
+        $("input:checkbox").prop('checked', updating);
     })
 });
 
-$('#uncheck').on('click', function() {
-    doAllUncheck(function() {
-        $("input:checkbox").prop('checked', false);
-    })
-})
+$('.checkStatus').on('click', function() {
+    let updating = true
+    if ($(this).attr('id') == 'active') {
+        updating = false
+    }
+    clickCheckBox(updating, drawTodos);
 
-$('#done').on('click', e => showDoneTasks(drawTodos));
+});
 
 $('#all').on('click', e => getAllTodos(drawTodos));
 
-$('#active').on('click', e => showActiveTasks(drawTodos));
+//$('#active').on('click', e => showActiveTasks(drawTodos));
 
 $(function() {
-        const buttons = $('#getByName, #getByDate, #getByChecked');
-        buttons.click(function() {
-            const current = $(this).val();
-            $(this).val(current === 'ASC' ? 'DESC' : 'ASC')
-            this.classList.toggle('rotate');
-            let sort = 'taskText';
-            if ($(this).attr('id') == 'getByDate') {
-                sort = 'datetime'
-            } else if ($(this).attr('id') == 'getByChecked') {
-                sort = 'isActive'
-            }
+    const buttons = $('#getByName, #getByDate, #getByChecked');
+    buttons.click(function() {
+        const current = $(this).val();
+        $(this).val(current === 'ASC' ? 'DESC' : 'ASC')
+        this.classList.toggle('rotate');
+        let sort = 'taskText';
+        if ($(this).attr('id') == 'getByDate') {
+            sort = 'datetime'
+        } else if ($(this).attr('id') == 'getByChecked') {
+            sort = 'isActive'
+        }
 
-            //buttons.not($(this)).removeClass('notactive').next();
-            buttons.not($(this)).removeClass('active').next();
-            $(this).addClass('active').next();
-            //buttons.not($(this)).addClass('notactive').next();
+        buttons.not($(this)).removeClass('active').next();
+        $(this).addClass('active').next();
+        getAllTodos(drawTodos, { sort, direction: current });
 
-            getAllTodos(drawTodos, { sort, direction: current });
+    });
 
-        });
-
-    })
-    //     
-
-//     getAllTodos(drawTodos, { sort: 'taskText', direction: current })
-//     getAllTodos(drawTodos, { sort: 'datetime', direction: current })
-//     getAllTodos(drawTodos, { sort: 'isActive', direction: current });
-
-//     $('sorter-box button').addClass('active')
-// });
-
-// $('.sorter-box button').on('click', function(id) {
-//     this.classList.toggle('rotate');
-//     const current = $('#getByName').val();
-//     const current = $('#getByDate').val();
-//     const current = $('#getByChecked').val();
-//     $('sorter-box button').val(current === 'ASC' ? 'DESC' : 'ASC')
-//     $('sorter-box button').addClass('active')
-// });
-
-// $('#getByName').on('click', function() {
-//     this.classList.toggle('rotate')
-//     const current = $('#getByName').val();
-//     $('#getByName').val(current === 'ASC' ? 'DESC' : 'ASC')
-//     getAllTodos(drawTodos, { sort: 'taskText', direction: current })
-//     $('#getByName').addClass('active')
-// });
-
-// $('#getByDate').on('click', function() {
-//     this.classList.toggle('rotate')
-//     const current = $('#getByDate').val();
-//     $('#getByDate').val(current === 'ASC' ? 'DESC' : 'ASC')
-//     getAllTodos(drawTodos, { sort: 'datetime', direction: current })
-//     $('#getByDate').addClass('active')
-// });
-
-// $('#getByChecked').on('click', function() {
-//     this.classList.toggle('rotate')
-//     const current = $('#getByChecked').val();
-//     $('#getByChecked').val(current === 'ASC' ? 'DESC' : 'ASC')
-//     getAllTodos(drawTodos, { sort: 'isActive', direction: current })
-//     $('#getByChecked').addClass('active')
-// });
-
+})
 
 /* draw todo */
 
@@ -171,7 +140,6 @@ function drawTodos(newTodos) {
 
 }
 
-
 function createTodo(taskText) {
     return {
         taskText: taskText,
@@ -180,19 +148,30 @@ function createTodo(taskText) {
     }
 }
 
-/**
- * 
- * getAllTodos
- * createTodo
- * deleteTodoById
- * 
- */
+function formatDate(_date) {
+    const date = new Date(_date)
+    let minutes = date.getMinutes();
+    if (minutes < 10) {
+        minutes = `0${minutes}`
+    }
+    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${minutes};`
+}
 
-function getAllTodos(callback, { sort, direction } = {}) {
+function anError(status, errorMsg) {
+    const errorDiv = $('.error').text("Статус: " + status + " Ошибка: " + errorMsg)
+    errorDiv.show(10, function() {
+        setTimeout(function() {
+                errorDiv.hide(300);
+            },
+            5000);
+    });
+}
+
+function getAllTodos(callback, { sort, direction, isActive = 'all' } = {}) {
 
     $.ajax({
         method: "GET",
-        data: { sort, direction },
+        data: { sort, direction, isActive },
         url: 'http://localhost:3000/todo-list',
         success: (response) => {
             callback(response.list)
@@ -203,7 +182,6 @@ function getAllTodos(callback, { sort, direction } = {}) {
 }
 
 function saveTodo(todo, callback) {
-
     $.ajax({
         method: "POST",
         url: 'http://localhost:3000/todo-list',
@@ -240,48 +218,11 @@ function deleteAllItems(id, callback) {
     });
 }
 
-function clickCheckBox(id, callback) {
+function clickCheckBox(id, isActive, callback) {
     $.ajax({
-        method: "POST",
-        url: `http://localhost:3000/todo-list/update/${id}`,
-        data: id,
-        success: (response) => {
-            callback(response.item)
-        },
-        error: (err) => anError()
-
-    });
-}
-
-
-
-function anError(status, errorMsg) {
-    const errorDiv = $('.error').text("Статус: " + status + " Ошибка: " + errorMsg)
-    errorDiv.show(10, function() {
-        setTimeout(function() {
-                errorDiv.hide(300);
-            },
-            5000);
-    });
-}
-
-
-/* add date and time near the task */
-
-
-function formatDate(_date) {
-    const date = new Date(_date)
-    let minutes = date.getMinutes();
-    if (minutes < 10) {
-        minutes = `0${minutes}`
-    }
-    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${minutes};`
-}
-
-function doCheckedAll(callback) {
-    $.ajax({
-        method: "POST",
+        method: "PUT",
         url: `http://localhost:3000/todo-list/update/`,
+        data: { id, isActive },
         success: (response) => {
             callback(response.item)
         },
@@ -290,37 +231,37 @@ function doCheckedAll(callback) {
     });
 }
 
-function doAllUncheck(callback) {
+// function showCheckStatus(callback) {
+//     $.ajax({
+//         //data: isActive,
+//         method: "GET",
+//         url: `http://localhost:3000/todo-list/checked/`,
+//         success: (response) => {
+//             callback(response.list)
+//         },
+//         dataType: "json"
+//     });
+// };
+
+// function showActiveTasks(callback) {
+//     $.ajax({
+//         method: "GET",
+//         url: 'http://localhost:3000/todo-list/active',
+//         success: (response) => {
+//             callback(response.list)
+//         },
+//         dataType: "json"
+//     });
+// }
+
+function doUpdateCheckAll(isActive, callback) {
     $.ajax({
-        method: "POST",
-        url: `http://localhost:3000/todo-list/uncheck/`,
+        method: "PUT",
+        url: `http://localhost:3000/todo-list/update/${isActive}`,
         success: (response) => {
             callback(response.item)
         },
         error: (err) => anError()
 
-    });
-}
-
-function showDoneTasks(callback) {
-    $.ajax({
-        method: "GET",
-        url: 'http://localhost:3000/todo-list/checked',
-        success: (response) => {
-            callback(response.list)
-        },
-        dataType: "json"
-    });
-
-};
-
-function showActiveTasks(callback) {
-    $.ajax({
-        method: "GET",
-        url: 'http://localhost:3000/todo-list/active',
-        success: (response) => {
-            callback(response.list)
-        },
-        dataType: "json"
     });
 }
