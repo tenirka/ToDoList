@@ -84,17 +84,14 @@ $('.updateCheck-all').on('click', function() {
 });
 
 $('.checkStatus').on('click', function() {
-    let updating = true
+    let isActive = true
     if ($(this).attr('id') == 'active') {
-        updating = false
+        isActive = false
     }
-    clickCheckBox(updating, drawTodos);
-
+    getAllTodos(drawTodos, { isActive });
 });
 
 $('#all').on('click', e => getAllTodos(drawTodos));
-
-//$('#active').on('click', e => showActiveTasks(drawTodos));
 
 $(function() {
     const buttons = $('#getByName, #getByDate, #getByChecked');
@@ -108,13 +105,10 @@ $(function() {
         } else if ($(this).attr('id') == 'getByChecked') {
             sort = 'isActive'
         }
-
         buttons.not($(this)).removeClass('active').next();
         $(this).addClass('active').next();
         getAllTodos(drawTodos, { sort, direction: current });
-
     });
-
 })
 
 /* draw todo */
@@ -130,7 +124,6 @@ function drawTodo(todo) {
         </li>`
     )
 }
-
 
 function drawTodos(newTodos) {
     $('#todo-list').empty();
@@ -168,7 +161,6 @@ function anError(status, errorMsg) {
 }
 
 function getAllTodos(callback, { sort, direction, isActive = 'all' } = {}) {
-
     $.ajax({
         method: "GET",
         data: { sort, direction, isActive },
@@ -178,7 +170,6 @@ function getAllTodos(callback, { sort, direction, isActive = 'all' } = {}) {
         },
         dataType: "json"
     });
-
 }
 
 function saveTodo(todo, callback) {
@@ -190,9 +181,7 @@ function saveTodo(todo, callback) {
             callback(response.item)
         },
         error: (err) => anError()
-
     });
-
 }
 
 function deleteTodoById(id, callback) {
@@ -203,7 +192,6 @@ function deleteTodoById(id, callback) {
             callback()
         },
         error: (err) => anError()
-
     });
 }
 
@@ -227,41 +215,5 @@ function clickCheckBox(id, isActive, callback) {
             callback(response.item)
         },
         error: (err) => anError()
-
-    });
-}
-
-// function showCheckStatus(callback) {
-//     $.ajax({
-//         //data: isActive,
-//         method: "GET",
-//         url: `http://localhost:3000/todo-list/checked/`,
-//         success: (response) => {
-//             callback(response.list)
-//         },
-//         dataType: "json"
-//     });
-// };
-
-// function showActiveTasks(callback) {
-//     $.ajax({
-//         method: "GET",
-//         url: 'http://localhost:3000/todo-list/active',
-//         success: (response) => {
-//             callback(response.list)
-//         },
-//         dataType: "json"
-//     });
-// }
-
-function doUpdateCheckAll(isActive, callback) {
-    $.ajax({
-        method: "PUT",
-        url: `http://localhost:3000/todo-list/update/${isActive}`,
-        success: (response) => {
-            callback(response.item)
-        },
-        error: (err) => anError()
-
     });
 }
