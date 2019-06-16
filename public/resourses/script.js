@@ -44,14 +44,14 @@ $('#toDoName').keyup(function(event) {
 
 $('#todo-list').on('click', '.delete', function(event) {
     const id = ($(this).parent().attr('attr-id'));
-    deleteTodoById(id, function() {
+    deleteItems(id, function() {
         $(`#${id}`).remove();
     });
 });
 
 $(document).on('click', '.all-del', function() {
     const id = ($(this).parent().attr('attr-id'));
-    deleteAllItems(id, function() {
+    deleteItems(id, function() {
         $('#todo-list').empty();
     });
 });
@@ -184,21 +184,22 @@ function saveTodo(todo, callback) {
     });
 }
 
-function deleteTodoById(id, callback) {
-    $.ajax({
-        url: `http://localhost:3000/todo-list/${id}`,
-        type: 'DELETE',
-        success: (result) => {
-            callback()
-        },
-        error: (err) => anError()
-    });
-}
+// function deleteTodoById(id, callback) {
+//     $.ajax({
+//         url: `http://localhost:3000/todo-list/${id}`,
+//         type: 'DELETE',
+//         success: (result) => {
+//             callback()
+//         },
+//         error: (err) => anError()
+//     });
+// }
 
-function deleteAllItems(id, callback) {
+function deleteItems(id, callback) {
     $.ajax({
         url: 'http://localhost:3000/todo-list',
         type: 'DELETE',
+        data: { id },
         success: (result) => {
             callback()
         },

@@ -71,29 +71,39 @@ api.put('/todo-list/update/', async(req, res) => {
     }
 });
 
-api.delete('/todo-list/:id', async(req, res) => {
-    const { id } = req.params
-    try {
-        const todoItem = await db.todo_item.findByPk(id)
-        if (!todoItem) {
-            return res.status(404).json({ message: 'Model not found' });
-        }
-        await todoItem.destroy()
-        return res.json({ message: 'Model deleted' });
+// api.delete('/todo-list/:id', async(req, res) => {
+//     const { id } = req.params
+//     try {
+//         const todoItem = await db.todo_item.findByPk(id)
+//         if (!todoItem) {
+//             return res.status(404).json({ message: 'Model not found' });
+//         }
+//         await todoItem.destroy()
+//         return res.json({ message: 'Model deleted' });
 
-    } catch (error) {
-        return res.status(500).json({ message: 'Oops' })
-    }
-})
+//     } catch (error) {
+//         return res.status(500).json({ message: 'Oops' })
+//     }
+// })
 
 api.delete('/todo-list', async(req, res) => {
+    let id = req.body.id
     try {
-        db.todo_item.destroy({
-            where: {}
-        })
-        return res.json({ message: 'All items deleted' });
+        if (Object.keys(req.body).length != 0) {
+            const todoItem = await db.todo_item.findByPk(id)
+            if (!todoItem) {
+                return res.status(404).json({ message: 'Model not found' });
+            }
+            await todoItem.destroy()
+            return res.json({ message: 'Model deleted' });
+        } else {
+            db.todo_item.destroy({
+                where: {}
+            })
+        }
+        return res.json({ message: 'Deleted' });
     } catch (error) {
-        return res.status(500).json({ message: 'Oops' })
+        return res.status(500).json({ message: error.message })
     }
 })
 
