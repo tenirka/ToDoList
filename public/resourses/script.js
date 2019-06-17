@@ -59,7 +59,9 @@ $(document).on('click', '.all-del', function() {
 $('#todo-list').on('click', '.checked', function(event) {
     const id = $(this).parent().parent().attr('attr-id')
     const item = clickCheckBox(id, true, function(item) {
-        const isActive = item
+        console.log('xi', item)
+        const { isActive } = item
+        //debugger
         $(`#${id} input`).prop('checked', isActive)
     })
 })

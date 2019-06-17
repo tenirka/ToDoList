@@ -58,9 +58,9 @@ api.put('/todo-list/update/:id', async(req, res) => {
 
         let { id } = req.params;
         const todoItem = await db.todo_item.findByPk(id)
-        const item = await db.todo_item.update({ isActive: !todoItem.isActive }, { where: { id } });
-        console.log(req.params)
-        return res.json({ item })
+        todoItem.isActive = !todoItem.isActive
+        await db.todo_item.update({ isActive: todoItem.isActive }, { where: { id } });
+        return res.json({ item: todoItem })
     } catch (error) {
         return res.status(500).json({ message: error.message })
     }
