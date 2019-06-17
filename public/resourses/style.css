@@ -9,11 +9,14 @@ body {
     margin-top: 15px;
     margin-bottom: 20px;
     margin-left: 40%;
+    color: #025f70;
+    font-weight: 600;
+    font-family: cursive;
 }
 
 button {
     padding: 5px 10px;
-    border: 2px solid #025f70;
+    border: 1px solid #025f70;
     border-radius: 5px;
     margin-bottom: 5px;
     background-color: rgb(119, 191, 233);
@@ -40,14 +43,13 @@ button {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    text-decoration: underline;
 }
 
 .action-box {
-    margin-top: 15px;
-}
-
-#toDoName {
-    border-color: rgb(119, 191, 233);
+    margin: 25px 15% 10px 15%;
+    border-top: 1px solid #025f70;
+    padding-top: 25px
 }
 
 .rotate {
@@ -64,11 +66,10 @@ li {
     height: 50px;
     color: #025f70;
     text-transform: capitalize;
-    font-weight: 600;
+    font-weight: 700;
     border-bottom: 1px solid #025f70;
     background: ffffff;
-    margin-left: 25%;
-    margin-right: 25%;
+    font-family: cursive;
 }
 
 p {
@@ -79,15 +80,23 @@ p {
 }
 
 #todo-list {
-    margin-top: 50px;
+    border-top: 1px solid #025f70;
+    padding-top: 5px;
+    margin: 65px 25% 20px 25%;
 }
 
 #toDoName {
+    color: #025f70;
+    font-weight: 700;
+    font-family: cursive;
     padding: 5px 10px;
-    border: 2px solid #025f70;
-    border-radius: 5px;
-    margin-bottom: 5px;
+    border: none;
+    border-bottom: 1px solid #025f70;
     background-color: rgb(240, 235, 235);
+}
+
+#toDoName:focus {
+    outline: none;
 }
 
 .delete {
@@ -111,7 +120,7 @@ label div {
     float: left;
     width: 25px;
     height: 25px;
-    border: 2px solid #025f70;
+    border: 1px solid #025f70;
     border-radius: 5px;
     margin: 10px;
     cursor: pointer;

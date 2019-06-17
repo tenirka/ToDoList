@@ -12,22 +12,18 @@ api.get('/todo-list', async(req, res) => {
     try {
         const queryObj = {}
         const { sort, direction, isActive } = req.query;
+        let list = []
         if (sort && direction) {
             queryObj.order = [
                 [sort, direction]
             ]
         }
-        let list = []
-        if (isActive == 'all') {
-            list = await db.todo_item.findAll(queryObj)
-        } else {
-            console.log(typeof isActive)
-            list = await db.todo_item.findAll({
-                where: {
-                    isActive: isActive === 'true'
-                }
-            });
+        if (isActive != 'all') {
+            queryObj.where = {
+                isActive: isActive === 'true'
+            }
         }
+        list = await db.todo_item.findAll(queryObj)
         return res.json({ list })
     } catch (error) {
         return res.status(500).json({ message: error.message })
@@ -47,23 +43,9 @@ api.post('/todo-list', async(req, res) => {
     }
 });
 
-api.put('/todo-list/update/', async(req, res) => {
+api.put('/todo-list/update-all/', async(req, res) => {
     try {
-        let id = req.body.id
-        let item = {}
-        if (id != -1) {
-            const todoItem = await db.todo_item.findByPk(id)
-
-            if (!todoItem) {
-                return res.status(404).json({ message: 'Model not found' });
-            }
-
-            item = await todoItem.update({
-                isActive: todoItem.isActive ? false : true
-            });
-        } else {
-            item = await db.todo_item.update({ isActive: req.body.isActive }, { where: {} });
-        }
+        let item = await db.todo_item.update({ isActive: req.body.isActive }, { where: {} });
 
         return res.json({ item })
     } catch (error) {
@@ -71,39 +53,42 @@ api.put('/todo-list/update/', async(req, res) => {
     }
 });
 
-// api.delete('/todo-list/:id', async(req, res) => {
-//     const { id } = req.params
-//     try {
-//         const todoItem = await db.todo_item.findByPk(id)
-//         if (!todoItem) {
-//             return res.status(404).json({ message: 'Model not found' });
-//         }
-//         await todoItem.destroy()
-//         return res.json({ message: 'Model deleted' });
-
-//     } catch (error) {
-//         return res.status(500).json({ message: 'Oops' })
-//     }
-// })
-
-api.delete('/todo-list', async(req, res) => {
-    let id = req.body.id
+api.put('/todo-list/update/:id', async(req, res) => {
     try {
-        if (Object.keys(req.body).length != 0) {
-            const todoItem = await db.todo_item.findByPk(id)
-            if (!todoItem) {
-                return res.status(404).json({ message: 'Model not found' });
-            }
-            await todoItem.destroy()
-            return res.json({ message: 'Model deleted' });
-        } else {
-            db.todo_item.destroy({
-                where: {}
-            })
-        }
+
+        let { id } = req.params;
+        const todoItem = await db.todo_item.findByPk(id)
+        const item = await db.todo_item.update({ isActive: !todoItem.isActive }, { where: { id } });
+        console.log(req.params)
+        return res.json({ item })
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+});
+
+api.delete('/todo-list/', async(req, res) => {
+    try {
+        await db.todo_item.destroy({
+            where: {}
+        })
         return res.json({ message: 'Deleted' });
     } catch (error) {
         return res.status(500).json({ message: error.message })
+    }
+})
+
+api.delete('/todo-list/:id', async(req, res) => {
+    const { id } = req.params
+    try {
+        const todoItem = await db.todo_item.findByPk(id)
+        if (!todoItem) {
+            return res.status(404).json({ message: 'Model not found' });
+        }
+        await todoItem.destroy()
+        return res.json({ message: 'Model deleted' });
+
+    } catch (error) {
+        return res.status(500).json({ message: 'Oops' })
     }
 })
 

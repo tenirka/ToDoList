@@ -44,31 +44,22 @@ $('#toDoName').keyup(function(event) {
 
 $('#todo-list').on('click', '.delete', function(event) {
     const id = ($(this).parent().attr('attr-id'));
-    deleteItems(id, function() {
+    deleteTodoById(id, function() {
         $(`#${id}`).remove();
     });
 });
 
 $(document).on('click', '.all-del', function() {
     const id = ($(this).parent().attr('attr-id'));
-    deleteItems(id, function() {
+    deleteItems(function() {
         $('#todo-list').empty();
     });
 });
 
-/*$('#todo-list').on('click', '.checked', function(event) {
-    const id = $(this).parent().parent().attr('attr-id')
-    const item = clickCheckBox(id, function(item) {
-        const { isActive } = item;
-        $(`#${id} input`).prop('checked', isActive)
-    })
-})*/
-
-
 $('#todo-list').on('click', '.checked', function(event) {
     const id = $(this).parent().parent().attr('attr-id')
-    const item = clickCheckBox(id, false, function(item) {
-        const { isActive } = item
+    const item = clickCheckBox(id, true, function(item) {
+        const isActive = item
         $(`#${id} input`).prop('checked', isActive)
     })
 })
@@ -78,7 +69,7 @@ $('.updateCheck-all').on('click', function() {
     if ($(this).attr('id') == 'uncheck') {
         updating = false
     }
-    clickCheckBox(-1, updating, function() {
+    doUpdateCheckAll(updating, function() {
         $("input:checkbox").prop('checked', updating);
     })
 });
@@ -184,22 +175,21 @@ function saveTodo(todo, callback) {
     });
 }
 
-// function deleteTodoById(id, callback) {
-//     $.ajax({
-//         url: `http://localhost:3000/todo-list/${id}`,
-//         type: 'DELETE',
-//         success: (result) => {
-//             callback()
-//         },
-//         error: (err) => anError()
-//     });
-// }
-
-function deleteItems(id, callback) {
+function deleteItems(callback) {
     $.ajax({
         url: 'http://localhost:3000/todo-list',
         type: 'DELETE',
-        data: { id },
+        success: (result) => {
+            callback()
+        },
+        error: (err) => anError()
+    });
+}
+
+function deleteTodoById(id, callback) {
+    $.ajax({
+        url: `http://localhost:3000/todo-list/${id}`,
+        type: 'DELETE',
         success: (result) => {
             callback()
         },
@@ -210,8 +200,20 @@ function deleteItems(id, callback) {
 function clickCheckBox(id, isActive, callback) {
     $.ajax({
         method: "PUT",
-        url: `http://localhost:3000/todo-list/update/`,
         data: { id, isActive },
+        url: `http://localhost:3000/todo-list/update/${id}`,
+        success: (response) => {
+            callback(response.item)
+        },
+        error: (err) => anError()
+    });
+}
+
+function doUpdateCheckAll(isActive, callback) {
+    $.ajax({
+        method: "PUT",
+        data: { isActive },
+        url: `http://localhost:3000/todo-list/update-all/`,
         success: (response) => {
             callback(response.item)
         },
